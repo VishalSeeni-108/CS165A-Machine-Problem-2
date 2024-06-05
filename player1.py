@@ -2,8 +2,8 @@ import random
 
 # Directions are mapped to 'W', 'A', 'S', 'D'
 directions = {'W': (0, -1), 'A': (-1, 0), 'S': (0, 1), 'D': (1, 0)}
-RECURSION_LIMIT = 10
-#TODO: Implement alpha-beta prunign so recursion limit can be increased - already very slow for just 10
+RECURSION_LIMIT = 2
+#TODO: Implement alpha-beta pruning so recursion limit can be increased - already very slow for just 10
 
 def player1_logic(coins, potions, foods, dungeon_map, self_position, other_agent_position):
     results = recursive_minimax(dungeon_map, coins, potions, foods, self_position, 0, 50, 50, other_agent_position, 0, 50, 50, True, True, 'W', True, 0)
