@@ -2,16 +2,16 @@ import random
 
 # Directions are mapped to 'W', 'A', 'S', 'D'
 directions = {'W': (0, -1), 'A': (-1, 0), 'S': (0, 1), 'D': (1, 0)}
-RECURSION_LIMIT = 2
+RECURSION_LIMIT = 3
 #TODO: Implement alpha-beta pruning so recursion limit can be increased - already very slow for just 10
 
 def player1_logic(coins, potions, foods, dungeon_map, self_position, other_agent_position):
     results = recursive_minimax(dungeon_map, coins, potions, foods, self_position, 0, 50, 50, other_agent_position, 0, 50, 50, True, True, 'W', True, 0)
-    return results[1]
+
+    return results[0]
 
 
-def action_utility(coins, potions, foods, player_position, player_score, player_stamina, player_hunger, opponent_position, opponent_score, opponent_stamina, opponent_hunger, action, hunger_dec_player, hunger_dec_opponent, turn): #Evaluates a given action and specifices the changed values - that is, calculate the resulting state
-    
+def action_utility(coins, potions, foods, player_position, player_score, player_stamina, player_hunger, opponent_position, opponent_score, opponent_stamina, opponent_hunger, action, hunger_dec_player, hunger_dec_opponent, turn): #Evaluates a given action and specifices the changed values - that is, calculate the resulting state  
     if(turn): #Player's turn
         # Evaluates the results of a given action and returns appropriate values
         #Calculate action_position
@@ -35,6 +35,7 @@ def action_utility(coins, potions, foods, player_position, player_score, player_
             hunger_dec_player = False
 
         #Check for items 
+        print("Action position: " + str(action_position))
         if action_position in coins: #Check if there is a coin at that position - if there is, increment score and collect coin
             player_score += 1
             coins.remove(action_position) 
@@ -88,8 +89,8 @@ def action_utility(coins, potions, foods, player_position, player_score, player_
     return coins, potions, foods, player_score, player_stamina, player_hunger, hunger_dec_player, opponent_score, opponent_stamina, opponent_hunger, hunger_dec_opponent, action_position
 
 def utility(player_score, player_stamina, player_hunger, opponent_score, opponent_stamina, opponent_hunger): #for a given state, calculate a score based on player score, stamina, hunger and opponent score, stamina, hunger
-    return ((10*player_score) + (1*player_stamina) + (1*player_hunger) - (10*opponent_score) - (10*opponent_stamina) - (10*opponent_hunger))/6 #Returns weighted average
-
+    ##return ((10*player_score) + (1*player_stamina) + (1*player_hunger) - (10*opponent_score) - (10*opponent_stamina) - (10*opponent_hunger))/6 #Returns weighted average
+    return player_score - opponent_score
 def recursive_minimax(dungeon_map, coins, potions, foods, player_position, player_score, player_stamina, player_hunger, opponent_position, opponent_score, opponent_stamina, opponent_hunger, hunger_dec_player, hunger_dec_opponent, curr_action, turn, recursion_depth): #Recursive function for minimax
     #Calculate next moves for the either the player or the opponent taking their turn
     # Get current position of the agent
@@ -114,7 +115,7 @@ def recursive_minimax(dungeon_map, coins, potions, foods, player_position, playe
     
     # If there are no valid move, break
     if((recursion_depth == RECURSION_LIMIT) or (len(valid_moves) == 0)):
-        return utility(player_score, player_stamina, player_hunger, opponent_score, opponent_stamina, opponent_hunger), curr_action
+        return utility(player_score, player_stamina, player_hunger, opponent_score, opponent_stamina, opponent_hunger)
 
     #For each possible move, calculate potential results and store recursive call
     move_scores = {}
@@ -129,7 +130,11 @@ def recursive_minimax(dungeon_map, coins, potions, foods, player_position, playe
         else: #Opponent's turn
             move_scores[action] = recursive_minimax(dungeon_map, action_coins, action_potions, action_foods, player_position, action_player_score, action_player_stamina, action_player_hunger, action_position, action_opponent_score, action_opponent_stamina, action_opponent_hunger, action_hunger_dec_player, action_hunger_dec_opponent, action, not turn, recursion_depth + 1)
 
+    print(move_scores)
+
     if(turn): #Player's turn, want to MAXIMIZE heuristic
+        print("Max is " + str(max(move_scores)))
         return max(move_scores), max(move_scores, key=move_scores.get)
     else: #Opponent's turn, want to MINIMIZE heuristic
-        return min(move_scores), max(move_scores, key=move_scores.get)
+        print("Min is " + str(min(move_scores)))
+        return min(move_scores), min(move_scores, key=move_scores.get)
