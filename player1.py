@@ -1,7 +1,9 @@
 import random
+
+# Directions are mapped to 'W', 'A', 'S', 'D'
+directions = {'W': (0, -1), 'A': (-1, 0), 'S': (0, 1), 'D': (1, 0)}
+
 def player1_logic(coins, potions, foods, dungeon_map, self_position, other_agent_position):
-    # Directions are mapped to 'W', 'A', 'S', 'D'
-    directions = {'W': (0, -1), 'A': (-1, 0), 'S': (0, 1), 'D': (1, 0)}
     
     # Get current position of the agent
     x, y = self_position
@@ -23,20 +25,31 @@ def player1_logic(coins, potions, foods, dungeon_map, self_position, other_agent
     # If there are no valid moves, return 'I' to remain idle
     if not valid_moves:
         return 'I'
-    
+
+    move_scores = {}
+
     for action in valid_moves:
         action_coins, action_potions, action_foods, action_player_score, action_player_stamina, action_player_hunger, action_hugerdec = action_utility(coins, potions, foods, self_position, 0, 50, 50, action, False)
-        print("test")
+        move_scores[action] = utility(action_player_score, action_player_stamina, action_player_hunger)
+
+
+    for score in move_scores: 
+        print("For move " + score + " score is " + str(move_scores[score]))
+
     # Randomly choose from the valid moves
-    return random.choice(valid_moves)
+    return 'I'
 
     #Implementing minimax
     #Need to do a depth first search
     #First, create a utility function to evaluate the "goodness" of an action 
 
 
-def action_utility(coins, potions, foods, player_position, player_score, player_stamina, player_hunger, action_position, hunger_dec): #Evaluates a given acition for its "goodness" based on number of coins left, score of each player, etc. 
+def action_utility(coins, potions, foods, player_position, player_score, player_stamina, player_hunger, action, hunger_dec): #Evaluates a given action and specifices the changed values - that is, calculate the resulting state
     # Evaluates the results of a given action and returns appropriate values
+    #Calculate action_position
+    xi, yi = player_position
+    dx, dy = directions[action]
+    action_position = xi+dx, yi+dy
 
     #Decrement stamina for movement
     if(player_position != action_position): #Ensure this is not an idle action
@@ -69,3 +82,6 @@ def action_utility(coins, potions, foods, player_position, player_score, player_
         potions.remove(action_position)
         
     return coins, potions, foods, player_score, player_stamina, player_hunger, hunger_dec
+
+def utility(player_score, player_stamina, player_hunger): #for a given state, calculate a score based on player score, stamina, hunger, etc. 
+    return ((10*player_score) + (1*player_stamina) + (1*player_hunger))/3 #Returns weighted average
