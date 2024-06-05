@@ -6,9 +6,37 @@ RECURSION_LIMIT = 3
 #TODO: Implement alpha-beta pruning so recursion limit can be increased - already very slow for just 10
 
 def player1_logic(coins, potions, foods, dungeon_map, self_position, other_agent_position):
-    results = recursive_minimax(dungeon_map, coins, potions, foods, self_position, 0, 50, 50, other_agent_position, 0, 50, 50, True, True, 'W', True, 0)
+    #Get player position
+    x, y = self_position
 
-    return results[0]
+    # List to hold possible moves
+    valid_moves = []
+    
+    # Check each possible direction
+    for move in directions:
+        dx, dy = directions[move]
+        nx, ny = x + dx, y + dy
+        
+        # Ensure the new position is within the bounds of the map and is not a wall
+        # Notice that you have to access position (x, y) via dungeon_map[y][x]
+        # Because the dungeon_map is a list of lists
+        if dungeon_map[ny][nx] == 'floor':
+            valid_moves.append(move)
+    
+    results = {}
+
+    for move in valid_moves:
+        results[move] = recursive_minimax(dungeon_map, coins, potions, foods, self_position, 0, 50, 50, other_agent_position, 0, 50, 50, True, True, 'W', True, 0)
+   
+    max_score = max(results)
+    chosen_moves = []
+
+    for result in results: 
+        if result == max_score:
+            chosen_moves.append()
+    print("Final scores: " + str(results))
+    print("Taking action " + max(results, key=results.get))
+    return max(results, key=results.get)
 
 
 def action_utility(coins, potions, foods, player_position, player_score, player_stamina, player_hunger, opponent_position, opponent_score, opponent_stamina, opponent_hunger, action, hunger_dec_player, hunger_dec_opponent, turn): #Evaluates a given action and specifices the changed values - that is, calculate the resulting state  
@@ -133,8 +161,8 @@ def recursive_minimax(dungeon_map, coins, potions, foods, player_position, playe
     print(move_scores)
 
     if(turn): #Player's turn, want to MAXIMIZE heuristic
-        print("Max is " + str(max(move_scores)))
-        return max(move_scores), max(move_scores, key=move_scores.get)
+        print("Max is " + str(max(move_scores.values())))
+        return max(move_scores.values())
     else: #Opponent's turn, want to MINIMIZE heuristic
-        print("Min is " + str(min(move_scores)))
-        return min(move_scores), min(move_scores, key=move_scores.get)
+        print("Min is " + str(min(move_scores.values())))
+        return min(move_scores.values())
