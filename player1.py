@@ -25,14 +25,23 @@ def player1_logic(coins, potions, foods, dungeon_map, self_position, other_agent
 
     potential_moves = {}
     for move in directions:
-            move_state = state_gen(initial_state, move, True, dungeon_map)
-            potential_moves[move] = recursive_minimax(move_state, False, 1, -math.inf, math.inf, dungeon_map)
+            #Get player position
+            x, y = self_position
+            dx, dy = directions[move]
+            nx, ny = x + dx, y + dy
+            # Ensure the new position is within the bounds of the map and is not a wall
+            # Notice that you have to access position (x, y) via dungeon_map[y][x]
+            # Because the dungeon_map is a list of lists
+            if dungeon_map[ny][nx] == 'floor':
+                move_state = state_gen(initial_state, move, True, 1, dungeon_map)
+                potential_moves[move] = recursive_minimax(move_state, False, 1, -math.inf, math.inf, dungeon_map)
     print("Taking move " + max(potential_moves, key=potential_moves.get))
     print(potential_moves)
     return max(potential_moves, key=potential_moves.get)
 
 def utility(state): #for a given state, calculate a score based on player score, stamina, hunger and opponent score, stamina, hunger
-    return state["player_score"] - state["opponent_score"] #TODO - need to find a good utility function
+    #TODO - need to find a good utility function
+    return state["player_score"]
 
 
 def recursive_minimax(state, turn, depth, alpha, beta, dungeon_map): #Recursive function for minimax
@@ -43,7 +52,7 @@ def recursive_minimax(state, turn, depth, alpha, beta, dungeon_map): #Recursive 
     if(turn): #Player's turn
         new_states = []
         for move in directions:
-            new_states.append(state_gen(state, move, True, dungeon_map))
+            new_states.append(state_gen(state, move, True, depth, dungeon_map))
 
         curr_max = -math.inf
         for new_state in new_states:
@@ -56,7 +65,7 @@ def recursive_minimax(state, turn, depth, alpha, beta, dungeon_map): #Recursive 
     else: #Opponent's turn
         new_states = []
         for move in directions:
-            new_states.append(state_gen(state, move, False, dungeon_map))
+            new_states.append(state_gen(state, move, False, depth, dungeon_map))
 
         curr_min = math.inf
         for new_state in new_states:
@@ -69,7 +78,7 @@ def recursive_minimax(state, turn, depth, alpha, beta, dungeon_map): #Recursive 
 
 
 
-def state_gen(state, action, player, dungeon_map):
+def state_gen(state, action, player, depth, dungeon_map):
     new_state = state.copy()
 
     if(player):
