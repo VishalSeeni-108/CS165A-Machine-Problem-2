@@ -2,7 +2,7 @@ import math
 
 # Directions are mapped to 'W', 'A', 'S', 'D'
 directions = {'W': (0, -1), 'A': (-1, 0), 'S': (0, 1), 'D': (1, 0)}
-DEPTH_LIMIT = 5
+DEPTH_LIMIT = 1
 
 def player1_logic(coins, potions, foods, dungeon_map, self_position, other_agent_position):
   
@@ -35,13 +35,13 @@ def player1_logic(coins, potions, foods, dungeon_map, self_position, other_agent
             if dungeon_map[ny][nx] == 'floor':
                 move_state = state_gen(initial_state, move, True, 1, dungeon_map)
                 potential_moves[move] = recursive_minimax(move_state, False, 1, -math.inf, math.inf, dungeon_map)
-    print("Taking move " + max(potential_moves, key=potential_moves.get))
-    print(potential_moves)
+    # print("Taking move " + max(potential_moves, key=potential_moves.get))
+    # print(potential_moves)
     return max(potential_moves, key=potential_moves.get)
 
 def utility(state): #for a given state, calculate a score based on player score, stamina, hunger and opponent score, stamina, hunger
     #TODO - need to find a good utility function
-    return state["player_score"]
+    return state["player_score"] + state["player_stamina"] + state["player_hunger"] + (1/player_dist_to_coin(state))
 
 
 def recursive_minimax(state, turn, depth, alpha, beta, dungeon_map): #Recursive function for minimax
@@ -163,3 +163,13 @@ def state_gen(state, action, player, depth, dungeon_map):
             new_state["opponent_stamina"] += 1
 
     return new_state
+
+def player_dist_to_coin(state):
+    player_x, player_y = state["player_position"]
+    min_dist = math.inf
+    for coin in state["coins"]:
+        coin_x, coin_y = coin
+        dist = math.sqrt(pow(coin_x - player_x, 2) + pow(coin_y - player_y, 2))
+        if(dist < min_dist):
+            min_dist = dist
+    return min_dist
