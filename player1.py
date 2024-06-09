@@ -2,7 +2,7 @@ import math
 
 # Directions are mapped to 'W', 'A', 'S', 'D'
 directions = {'W': (0, -1), 'A': (-1, 0), 'S': (0, 1), 'D': (1, 0)}
-DEPTH_LIMIT = 1
+DEPTH_LIMIT = 2
 
 def player1_logic(coins, potions, foods, dungeon_map, self_position, other_agent_position):
   
@@ -41,7 +41,7 @@ def player1_logic(coins, potions, foods, dungeon_map, self_position, other_agent
 
 def utility(state): #for a given state, calculate a score based on player score, stamina, hunger and opponent score, stamina, hunger
     #TODO - need to find a good utility function
-    return state["player_score"] + state["player_stamina"] + state["player_hunger"] + (1/player_dist_to_coin(state))
+    return (100*state["player_score"]) + state["player_stamina"] + state["player_hunger"] + (1/player_dist_to_coin(state))
 
 
 def recursive_minimax(state, turn, depth, alpha, beta, dungeon_map): #Recursive function for minimax
